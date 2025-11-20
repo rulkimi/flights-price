@@ -11,7 +11,8 @@ BASE_PARAMS = {
   "hl": "en",
   "gl": "my",
   "currency": "MYR",
-  "api_key": SERPAPI_API_KEY
+  "api_key": SERPAPI_API_KEY,
+  "include_airlines":"MH"
 }
 
 def get_flights_price(
@@ -30,5 +31,15 @@ def get_flights_price(
 
   search = GoogleSearch(params)
   results = search.get_dict()
-  best_flights = results["best_flights"]
-  return best_flights
+  print(results)
+  best_flights = results.get("best_flights")
+  if not best_flights:
+    best_flights = results.get("other_flights", [])
+
+  # Try to get prettify_html_file from search_metadata if available
+  pretty_html_file = None
+  search_metadata = results.get("search_metadata", {})
+  if isinstance(search_metadata, dict):
+    pretty_html_file = search_metadata.get("prettify_html_file")
+
+  return best_flights, pretty_html_file
